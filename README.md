@@ -158,7 +158,7 @@ Other: Django Signals, Forms, Sessions
 
 ## 🖼 Screenshots (Add When Available)
 
-    ![alt text](todo.png)
+![alt text](todo.png)
 
 ---
 
