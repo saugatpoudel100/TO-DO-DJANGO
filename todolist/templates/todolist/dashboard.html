@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-black sidebar text-white min-vh-100 p-3 shadow-sm">
+            <div class="text-center mb-4">
+                {% if user.profile.image %}
+                    <img src="{{ user.profile.image.url }}" class="img-fluid rounded-circle mb-2" width="100" height="100" alt="Profile Photo">
+                {% else %}
+                    <img src="{% static 'default-avatar.png' %}" class="img-fluid rounded-circle mb-2" width="100" height="100" alt="Avatar">
+                {% endif %}
+                <h5 class="text-light mb-0">{{ user.username }}</h5>
+                <small class="text-muted">{{ user.email }}</small>
+            </div>
+            <hr class="text-secondary">
+            <ul class="nav flex-column">
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-white fw-semibold" href="{% url 'dashboard' %}">🏠 Home</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-white fw-semibold" href="{% url 'add_task' %}">✅ Task Management</a>
+                </li>
+                <li class="nav-item mb-2">
+                    <a class="nav-link text-white fw-semibold" href="{% url 'profile' %}">👤 Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white fw-semibold" href="{% url 'logout' %}">🚪 Logout</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 bg-light">
+            <div class="mb-4 border-bottom pb-2">
+                <h2>Welcome, <span class="text-primary">{{ user.username }}</span>!</h2>
+                <p class="text-muted">Here is an overview of your tasks and categories.</p>
+            </div>
+
+            <!-- Category Section -->
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4>📁 Your Categories</h4>
+                    <a href="{% url 'add_category' %}" class="btn btn-outline-dark btn-sm">+ Add Category</a>
+                </div>
+                {% if user.category_set.exists %}
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                        {% for cat in user.category_set.all %}
+                            <div class="col">
+                                <div class="card shadow-sm border-0 bg-white h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-dark">{{ cat.name }}</h5>
+                                        <p class="text-muted mb-0">{{ cat.task_set.count }} task{{ cat.task_set.count|pluralize }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No categories created yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Task List -->
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4>📋 Your Tasks</h4>
+                    <a href="{% url 'add_task' %}" class="btn btn-success btn-sm">+ Add Task</a>
+                </div>
+                {% if tasks %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Due Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in tasks %}
+                                    <tr>
+                                        <td>{{ task.title }}</td>
+                                        <td>
+                                            {% if task.category %}
+                                                {{ task.category.name }}
+                                            {% else %}
+                                                &mdash;
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if task.completed %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ task.due_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            <a href="{% url 'edit_task' task.pk %}" class="btn btn-sm btn-outline-warning">✏️</a>
+                                            <a href="{% url 'delete_task' task.pk %}" class="btn btn-sm btn-outline-danger">🗑️</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No tasks added yet.</p>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Hover and transition style -->
+<style>
+    .nav-link:hover {
+        background-color: #e50914;
+        color: white !important;
+        border-radius: 5px;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        transition: 0.3s ease;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    table td, table th {
+        vertical-align: middle;
+    }
+
+    body {
+        background-color: #f5f5f5;
+    }
+</style>
+{% endblock %}
